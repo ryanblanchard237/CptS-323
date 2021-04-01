@@ -1,3 +1,3 @@
 Hey guys. This is the code I have for a C# program that can talk to Firebase. (This is set up specifically for my Firebase database, as you can see in the file "Form1.cs" (inside the folder also named "CSharpWithFirebase", inside the top-level "CSharpWithFirebase" folder) near the top of the file where a new "FirebaseConfig" thing is created. I think the method I used to talk to my database is maybe deprecated, I think Firebase gave me a message about that when I set it up, but whatever for now I guess.)
 
-This is I guess to just help get us working on the same apge with stuff. So we're not writing code that one of the other of us has already written. Although we can still develop independinetly too.
+This is I guess to just help get us working on the same page with stuff. So we're not writing code that one of the other of us has already written. Although we can still develop independinetly too.

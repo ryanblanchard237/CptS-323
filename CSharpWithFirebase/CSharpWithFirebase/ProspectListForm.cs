@@ -25,7 +25,7 @@ namespace CSharpWithFirebase
 
 		private void buttonUpdateProspectList_Click(object sender, EventArgs e)
 		{
-			FillListFromDatabase();
+			RefreshListFromDatabase();
 			//
 			// This gives me warning CS4014,
 			// "Because this call is not awaited, execution of the current method continues
@@ -40,7 +40,7 @@ namespace CSharpWithFirebase
 			// See below, looks like I have to do it this way.
 
 
-			//FillListFromDatabase().Wait();
+			//RefreshListFromDatabase().Wait();
 			//
 			// Other option.
 			//
@@ -50,8 +50,15 @@ namespace CSharpWithFirebase
 			// if Firebase just was not responding.)
 		}
 
-		private async Task FillListFromDatabase()
+		private async Task RefreshListFromDatabase()
 		{
+			// Get rid of the old info in the ListView.
+			listView1.Clear();
+			SetUpListView();
+			// ListView.Clear() removes all the items from the ListView,
+			// but it also removes the columns.
+			// Therefore we have to set it up again.
+
 			var client = new Firebase.Database.FirebaseClient("https://cpts323-kovidkillers-default-rtdb.firebaseio.com/");
 			var timeslots = await client.Child("Prospects").OnceAsync<Prospect>();
 
@@ -63,9 +70,14 @@ namespace CSharpWithFirebase
 
 		private void ProspectListForm_Load(object sender, EventArgs e)
 		{
+			SetUpListView();
+		}
+
+		private void SetUpListView()
+		{
 			listView1.View = View.Details;
-			listView1.Columns.Add("Name");
-			listView1.Columns.Add("Address");
+			listView1.Columns.Add("Name", 150);
+			listView1.Columns.Add("Address", 250);
 		}
 	}
 }

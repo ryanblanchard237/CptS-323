@@ -8,9 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using FireSharp.Config;
-using FireSharp.Interfaces;
-using FireSharp.Response;
+//using FireSharp.Config;
+//using FireSharp.Interfaces;
+//using FireSharp.Response;
+
+//using Firebase.Database;
 
 namespace CSharpWithFirebase
 {
@@ -21,58 +23,49 @@ namespace CSharpWithFirebase
 			InitializeComponent();
 		}
 
-		IFirebaseConfig fconfig = new FirebaseConfig()
+		private void buttonUpdateProspectList_Click(object sender, EventArgs e)
 		{
-			AuthSecret = "Bn3c3rsghHfoHX7PeZwmP5GGrDuywJCiUhQgQFTW",
-			BasePath = "https://cpts323-kovidkillers-default-rtdb.firebaseio.com/"
-		};
+			FillListFromDatabase();
+			//
+			// This gives me warning CS4014,
+			// "Because this call is not awaited, execution of the current method continues
+			//  before the call is completed.
+			//  Consider applying the 'await' operator to the result of the call."
+			//
+			// This actually might be a desirable thing.
+			//
+			// Click the button, but the UI doesn't lock up. The list just fills when it fills
+			// and the form keeps on running.
+			//
+			// See below, looks like I have to do it this way.
 
-		IFirebaseClient client;
 
-		private void ProspectListForm_Load(object sender, EventArgs e)
+			//FillListFromDatabase().Wait();
+			//
+			// Other option.
+			//
+			// Tried it, this actually seems to not work.
+			// Seems that the application just doesn't respond at all after clicking the button.
+			// (Dont know if that's something related to how this works, or
+			// if Firebase just was not responding.)
+		}
+
+		private async Task FillListFromDatabase()
 		{
-			try
-			{
-				client = new FireSharp.FirebaseClient(fconfig);
-			}
-			catch
-			{
-				MessageBox.Show("There was a problem creating a FirebaseClient from the given FirebaseConfig.");
+			var client = new Firebase.Database.FirebaseClient("https://cpts323-kovidkillers-default-rtdb.firebaseio.com/");
+			var timeslots = await client.Child("Prospects").OnceAsync<Prospect>();
+
+			foreach (var slot in timeslots) {
+				ListViewItem lvi = new ListViewItem(new string[] {slot.Object.Name, slot.Object.Address} );
+				listView1.Items.Add(lvi);
 			}
 		}
 
-		private void buttonUpdateProspectList_Click(object sender, EventArgs e)
+		private void ProspectListForm_Load(object sender, EventArgs e)
 		{
-			// FirebaseResponse r = client.Get("Prospects");
-			//                          //.GetAsync() ?
-			// 						 //     "cpts323-kovidkillers-default-rtdb"
-			// // Using either "cpts323-kovidkillers-default-rtdb" or "Prospects",
-			// // it doesn't like it.
-			// //
-			// // I keep getting a NullReferenceException...
-			// // "Object reference not set to an instance of an object."
-
-
-			// FirebaseResponse response = await client.GetAsync("something");
-			// 
-			// https://stackoverflow.com/q/51579134 , "How to return as objects from firebase using firesharp"
-
-
-			// var response = client.Get("Prospects/");
-			// // This should get me everything in the "Prospects" directory in the database.
-			// 
-			// // Try this for now to see what happens.
-			// MessageBox.Show(r.Body);
-
-
-
-			// Step 1. Figure out how we get all the prospects. Abd what kind of a data structure this is.
-
-			var result = client.Get("Prospects");
-
-			MessageBox.Show("Result of \"client.Get(\"Prospects\")\" as just a string...\n"
-				            + 
-				            result.Body);
+			listView1.View = View.Details;
+			listView1.Columns.Add("Name");
+			listView1.Columns.Add("Address");
 		}
 	}
 }

@@ -71,6 +71,7 @@
 			this.Controls.Add(this.listView1);
 			this.Name = "ProspectListForm";
 			this.Text = "ProspectListForm";
+			this.Load += new System.EventHandler(this.ProspectListForm_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

@@ -28,3 +28,12 @@ C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_desig
 C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\obj\Debug\CSharpWithFirebase.ProspectListForm.resources
 C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\obj\Debug\CSharpWithFirebase.TalkToFirebaseForm.resources
 C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\obj\Debug\CSharpWithFirebase.MapForm.resources
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\Firebase.Database.dll
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\System.Reactive.Core.dll
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\System.Reactive.Interfaces.dll
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\System.Reactive.Linq.dll
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\System.Reactive.PlatformServices.dll
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\System.Reactive.Core.xml
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\System.Reactive.Interfaces.xml
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\System.Reactive.Linq.xml
+C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\CSharpWithFirebase\CSharpWithFirebase\bin\Debug\System.Reactive.PlatformServices.xml

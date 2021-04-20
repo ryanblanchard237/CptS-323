@@ -52,39 +52,8 @@ namespace Home_Visits_Vaccination
 			gMapControl1.MinZoom = 2;
 			gMapControl1.MaxZoom = 18;
 			gMapControl1.Zoom = 13;
-
-			// to do...
-			//
-			// Right now, the map is set up for the default GMap interaction behavior...
-			// Using the mouse, you can right-click-and-drag (on the map) to move it around;
-			// you can use the scroll wheel to zoom in an out.
-			// This looks like the only means of interaction.
-			//
-			// Possibly we could change it so you can control it using the keyboard.
-			// (Maybe we want the normal mouse click (left click) to be the one that pans it.)
-			// (I feel like that's a bit more natural.)
-			// Also have to keep in mind we might be setting markers on it.
-			// Although now that I think about it,
 		}
 
-
-		//private void example1()
-		//{
-		//	// My thought process here was to try to copy the example that
-		//	// dr. delatorre showed us when we (me, Jeremiah, Jason, couple other people)
-		//	// met with dr. delatorre i think it was Wednesday the 7th (April).
-		//	//
-		//	// He had an example that showed the van going to a point.
-		//	// I copied a little of the code he was showing us while he was explaining it,
-		//	// 
-		//
-		//
-		//	//GMap.NET.
-		//	GMap.NET.PointLatLng start;
-		//	GMap.NET.PointLatLng end;
-		//	 
-		//
-		//}
 
 		private void example2() // This will work to get directions from one point to another routeDirection will contain the steps which we can use to display position. Also will include the time for the trip. Can use this to compare and find the optimal prospect.
 		{
@@ -104,11 +73,7 @@ namespace Home_Visits_Vaccination
 				Console.WriteLine("Point {0} coords are: {1}", i, mapRoute2.Points[i]);
 			}
 		}
-		//private void example3()
-		//{ 
-		//	for (int i =0; i<routeDirection.point
-		
-		//}
+
 		private void example1()
 		{
 			GMap.NET.PointLatLng start;

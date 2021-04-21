@@ -26,6 +26,9 @@ namespace Home_Visits_Vaccination
 {
 	public partial class Main_Interface_Form_2 : Form
 	{
+		internal readonly GMapOverlay objects = new GMapOverlay("objects");
+		internal readonly GMapOverlay routes = new GMapOverlay("routes");
+		internal readonly GMapOverlay polygons = new GMapOverlay("polygons");
 		public Main_Interface_Form_2()
 		{
 			InitializeComponent();
@@ -48,6 +51,7 @@ namespace Home_Visits_Vaccination
 			// The API key in Delatorre's code is "AIzaSyD_EgYiqKMGksVC9LqJeRqx5WqRByy6nLk".
 
 			GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly; // Dont know what it does, but its recommended by the tutorial.
+			gMapControl1.Position = new PointLatLng(46.289106, -119.292999);
 
 			gMapControl1.MinZoom = 2;
 			gMapControl1.MaxZoom = 18;
@@ -66,10 +70,23 @@ namespace Home_Visits_Vaccination
 				GMapRoute mapRoute2 = new GMapRoute(routeDirection.Route, "This Trip");
 			GMapOverlay overlayTest = new GMapOverlay("Test Route");
 			overlayTest.Routes.Add(mapRoute2);
+			gMapControl1.Overlays.Add(overlayTest);
+			GMap.NET.WindowsForms.Markers.GMarkerGoogle startP = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(start, GMarkerGoogleType.red_pushpin);// Adds the markers to start and end points.
+			GMap.NET.WindowsForms.Markers.GMarkerGoogle endP = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(end, GMarkerGoogleType.red_pushpin);
+			var carMark = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(mapRoute2.Points[10], new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon.png"));
+			objects.Markers.Add(startP); // Adds to markers list
+			objects.Markers.Add(endP);  // adds to markers list
+			objects.Markers.Add(carMark); // Add the car marker to overlay.
 
-				Console.WriteLine(routeDirection);
+			gMapControl1.Overlays.Add(objects); // Adds the markers to actual overlay.
+			gMapControl1.ZoomAndCenterRoute(mapRoute2); // zooms to the route.
+			
+			Console.WriteLine(routeDirection);
 			for (int i = 0; i < mapRoute2.Points.Count; i++)
 			{
+				carMark.Position = mapRoute2.Points[i];
+				gMapControl1.Refresh();
+				Thread.Sleep(1000);
 				Console.WriteLine("Point {0} coords are: {1}", i, mapRoute2.Points[i]);
 			}
 		}

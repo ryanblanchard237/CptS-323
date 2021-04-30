@@ -1,0 +1,2 @@
+these are some of the packages that are in the VS solution for this thing, I will put a note in this file
+if I get all the packages up here (to Github).

@@ -84,6 +84,35 @@ namespace Home_Visits_Vaccination
 			// Although now that I think about it,
 		}
 
+		private double Distance(PointLatLng p1, PointLatLng p2)
+		{
+			//radius of earth in meters
+			double R = 6371e3;
+
+			double l1 = p1.Lat * Math.PI / 180;
+			double l2 = p2.Lat * Math.PI / 180;
+
+			double theta = (p2.Lat - p1.Lat) * Math.PI / 180;
+
+			double lambda = (p2.Lng - p1.Lng) * Math.PI / 180;
+
+			double a = Math.Sin(theta / 2) * Math.Sin(theta / 2)
+				+ Math.Cos(l1) * Math.Cos(l2) *
+				Math.Sin(lambda / 2) * Math.Sin(lambda / 2);
+
+			double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+
+			double m = R * c; // get distance in meters
+
+
+			return m / 1609.344; //returns distance in miles
+
+		}
+
+
+
+
 		public static async Task FromMilestone4PDF()
 		{
 			//******************** Initialization ***************************//
@@ -101,10 +130,32 @@ namespace Home_Visits_Vaccination
 
 			foreach (var appointment in Appointments)
 			{
-
+				var temp = 0;
 				Console.WriteLine($"OA1:{appointment.Key}:->{appointment.Object.accepted}");
+				for (int i=0; i<myappointments.Count; i++)
+                {
+					if (myappointments[i].Key== appointment.Key)
+						temp = i;
+					if (temp > 0)
+					{
+						appointment.Object.Key = appointment.Key;
+						myappointments[i] = appointment.Object;
+					}
+					else 
+					{
+						appointment.Object.Key = appointment.Key;
+						myappointments.Add(appointment.Object);
+					}
+					temp = 0;
+                }
+				if (myappointments.Count == 0)
+				{
+					appointment.Object.Key = appointment.Key;
+					myappointments.Add(appointment.Object);
+
+				}
 				selectedkey = appointment.Key;
-				myappointments.Add(appointment.Object);
+				//myappointments.Add(appointment.Object);
 
 			}
 

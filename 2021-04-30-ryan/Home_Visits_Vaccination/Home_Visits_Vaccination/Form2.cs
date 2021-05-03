@@ -33,7 +33,7 @@ namespace Home_Visits_Vaccination
 		internal readonly GMapOverlay polygons = new GMapOverlay("polygons");
 
 		PointLatLng currentVanLocation;
-		List<Appointment> appointmentList;
+		public static List<Appointment> appointmentList;
 		int indexOfCurrentAppointment;
 
 		public Form2()
@@ -59,10 +59,10 @@ namespace Home_Visits_Vaccination
 			// The API key in Delatorre's code is "AIzaSyD_EgYiqKMGksVC9LqJeRqx5WqRByy6nLk".
 
 			GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly; // Dont know what it does, but its recommended by the tutorial.
-
+			gMapControl1.Position = new PointLatLng(46.289106, -119.292999);
 			gMapControl1.MinZoom = 2;
-			gMapControl1.MaxZoom = 18;
-			gMapControl1.Zoom = 13;
+			gMapControl1.MaxZoom = 14;
+			gMapControl1.Zoom = 14;
 
 			// to do...
 			//
@@ -88,9 +88,36 @@ namespace Home_Visits_Vaccination
 			//pathToNextClient.Route;
         }
 
-		private void example2() 
+		public   void example2(PointLatLng start, PointLatLng end) 
 		{
-			// This will work to get directions from one point to another routeDirection will contain the steps which we can use to display position.
+
+			GMapProviders.GoogleMap.ApiKey = "AIzaSyBsS4_zQy-svXOtLrS32XPphEsSX-EMY8M";
+			//PointLatLng start = new PointLatLng(46.289106, -119.292999); // Will pass the selected appointment lat/lng here
+			//PointLatLng end = new PointLatLng(46.276860, -119.291511);
+			var temp = GMapProviders.GoogleMap.GetDirections(out routeDirection, start, end, false, false, false, false, false); // API call to get the directions
+			GMapRoute mapRoute2 = new GMapRoute(routeDirection.Route, "This Trip"); // Creates the route 
+			GMapOverlay overlayTest = new GMapOverlay("Test Route");
+			overlayTest.Routes.Add(mapRoute2);
+			gMapControl1.Overlays.Add(overlayTest);
+			GMap.NET.WindowsForms.Markers.GMarkerGoogle startP = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(start, GMarkerGoogleType.red_pushpin);// Adds the markers to start and end points.
+			GMap.NET.WindowsForms.Markers.GMarkerGoogle endP = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(end, GMarkerGoogleType.red_pushpin);
+			var carMark = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(mapRoute2.Points[11], new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon2.png")); // Sets the car marker variable and assigns it the bitmap (Icon)
+			objects.Markers.Add(startP); // Adds to markers list
+			objects.Markers.Add(endP);  // adds to markers list
+			objects.Markers.Add(carMark); // Add the car marker to overlay.
+
+			gMapControl1.Overlays.Add(objects); // Adds the markers to actual overlay.
+			gMapControl1.ZoomAndCenterRoute(mapRoute2); // zooms to the route.
+
+			Console.WriteLine(routeDirection);
+			for (int i = 0; i < mapRoute2.Points.Count; i++)
+			{
+				carMark.Position = mapRoute2.Points[i];
+				gMapControl1.Refresh();
+				Thread.Sleep(1000);
+				Console.WriteLine("Point {0} coords are: {1}", i, mapRoute2.Points[i]);
+			}
+			/*// This will work to get directions from one point to another routeDirection will contain the steps which we can use to display position.
 			// Also will include the time for the trip. Can use this to compare and find the optimal prospect.
 
 			GMapProviders.GoogleMap.ApiKey = "AIzaSyD_EgYiqKMGksVC9LqJeRqx5WqRByy6nLk"; //"AIzaSyBsS4_zQy-svXOtLrS32XPphEsSX-EMY8M"; // that didnt help.
@@ -122,7 +149,7 @@ namespace Home_Visits_Vaccination
 
 
 
-			GMarkerGoogle car = new GMarkerGoogle(pointLatLngs[1], new Bitmap(@"C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\Home_Visits_Vaccination\car-2.png")); // better.
+			GMarkerGoogle car = new GMarkerGoogle(pointLatLngs[1], new Bitmap(@"C:\Users\Jason\Desktop\323_2\CptS-323-main\CptS-323-main\2021-04-30-ryan\Home_Visits_Vaccination\car-2.png")); // better.
 			// 
 			// Maybe don't need to down-scale the size of the car now.
 			// (I shrunk the original image and called that result file "car-2".
@@ -156,6 +183,7 @@ namespace Home_Visits_Vaccination
 				if (i == pointLatLngs.Count)
 					break;
 			}
+			*/
 		}
 
 
@@ -209,7 +237,9 @@ namespace Home_Visits_Vaccination
 		private void button13_Click(object sender, EventArgs e)
 		{
 			//example1();
-			example2();
+			PointLatLng start = new PointLatLng(46.289106, -119.292999); // Will pass the selected appointment lat/lng here
+			PointLatLng end = new PointLatLng(46.276860, -119.291511);
+			example2(start,end);
 		}
 
 

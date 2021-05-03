@@ -23,6 +23,11 @@ using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using GMap.NET.WindowsForms.ToolTips;
+using Firebase.Database;
+using Firebase.Database.Query;
+using System.Reactive.Linq;
+using System.Net.Http;
+
 
 namespace Home_Visits_Vaccination
 {
@@ -31,6 +36,7 @@ namespace Home_Visits_Vaccination
 		internal readonly GMapOverlay objects = new GMapOverlay("objects");
 		internal readonly GMapOverlay routes = new GMapOverlay("routes");
 		internal readonly GMapOverlay polygons = new GMapOverlay("polygons");
+		static List<Appointment> myappointments= new List<Appointment>();
 
 		PointLatLng currentVanLocation;
 		public static List<Appointment> appointmentList;
@@ -78,15 +84,56 @@ namespace Home_Visits_Vaccination
 			// Although now that I think about it,
 		}
 
-		private void example3(PointLatLng destination)
-		// runVanToNewLocation
+		public static async Task FromMilestone4PDF()
 		{
-			GDirections pathToNextClient = new GDirections();
+			//******************** Initialization ***************************//
+			//var client = new FirebaseClient("https://cpts323-kovidkillers-default-rtdb.firebaseio.com/");
+			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
+			HttpClient httpclient = new HttpClient();
+			string selectedkey = "", responseString, companyId;
+			FormUrlEncodedContent content;
+			HttpResponseMessage response;
 
-			GMapProviders.GoogleMap.GetDirections(out pathToNextClient, currentVanLocation, destination, false, false, false, false, false);
 
-			//pathToNextClient.Route;
-        }
+
+			//******************** Get initial list of Prospect ***********************//
+			var Appointments = await client.Child("appointments").OnceAsync<Appointment>();
+
+			foreach (var appointment in Appointments)
+			{
+
+				Console.WriteLine($"OA1:{appointment.Key}:->{appointment.Object.accepted}");
+				selectedkey = appointment.Key;
+				myappointments.Add(appointment.Object);
+
+			}
+
+			//******************** Get Prospect list one by one real time ***************************/
+			var child = client.Child("appointments");
+			var observable = child.AsObservable<Appointment>();
+			//
+			// child.(as something that can be sovbservser)
+			//
+			// something that can be obvserved wotul dbew a provider.
+			//
+			// child.AsProvider() // as push-notification provider. (Provider-Observer .NET method.)
+
+
+			// START AS-PROVIDED
+			//get a new appoinment in the list
+			var subscriptionFree = observable
+			.Where(f => !string.IsNullOrEmpty(f.Key)) // you get empty Key when there are no data on the server for specified node
+			.Where(f => f.Object?.accepted == false)
+			.Subscribe(appointment =>
+			{
+				selectedkey = appointment.Key;
+				Console.WriteLine($"New Appoinment:{appointment.Key}:->{appointment.Object.destination.destinationName}");
+				// update the list of appointsments.
+
+			  // appointmentList.Add(appointment.Object);
+
+			});
+		}
 
 		public   void example2(PointLatLng start, PointLatLng end) 
 		{
@@ -188,50 +235,34 @@ namespace Home_Visits_Vaccination
 
 
 
-		private void example1()
+		public static async Task example1()
 		{
-			GMap.NET.PointLatLng start;
-			GMap.NET.PointLatLng end;
+			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
+			HttpClient httpclient = new HttpClient();
+			string selectedkey = "", responseString, companyId;
+			FormUrlEncodedContent content;
+			HttpResponseMessage response;
 
-			//GMap.NET.GDirections gDirections1;
-			GMap.NET.WindowsForms.GMapRoute gMapRoute1;
-			GMap.NET.WindowsForms.GMapOverlay gMapOverlay1;
-
-			try
+			var company = new Company
 			{
-				// Luis hard-codes an example start- and end-point,
-				// I think I might try to make it dynamic to help me understand it
-				// and give me practice with it.
-				// However at first to get the code running, I'm going to hard-code it.
-				//
-				start = new GMap.NET.PointLatLng(46.299106, -119.295999);
-				end = new GMap.NET.PointLatLng(46.276860, -119.291511);
+				companyName = "Kovid Killers",
+				status = "active"
+			};
 
-				var dirstatcode = GMapProviders.GoogleMap.GetDirections(out gDirections1, start, end, false, false, false, false, false);
-				gMapRoute1 = new GMapRoute(gDirections1.Route, "foo");
-				// After trying this, I get an error at the aboe line, saying that gDirections1 was null.
-				//
-				// Try 1
-				// Changed MapProvider to GoogleMapProvider (was BingMapProvider).
-				// No difference.
-				//
-				// Try 2
-				// Moved the declaration of "gDirections1" to the entire form.
-				// No difference.
-
-				gMapOverlay1 = new GMap.NET.WindowsForms.GMapOverlay(); // string param is optional
-				gMapOverlay1.Routes.Add(gMapRoute1);
-				//MainMap.Overlays.Add(gMapOverlay1);
-				this.gMapControl1.Overlays.Add(gMapOverlay1);
-
-
-
-
-			}
-			catch (Exception ex)
+			var dictionary = new Dictionary<string, string>
 			{
-				MessageBox.Show("Exception happened, {0}", ex.Message);
-			}
+				{ "companyName",company.companyName },
+				{ "status",company.status}
+			};
+
+			content = new FormUrlEncodedContent(dictionary);
+			response = await httpclient.PostAsync("https://us-central1-cpts323battle.cloudfunctions.net/reportCompany", content);
+			responseString = await response.Content.ReadAsStringAsync();
+			Response data = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseString);
+			//Response message
+			Console.WriteLine(data.message);
+			Console.WriteLine(data.companyId);
+			companyId = data.companyId;
 		}
 
 		private void button13_Click(object sender, EventArgs e)
@@ -290,11 +321,13 @@ namespace Home_Visits_Vaccination
 		//
 		private void buttonAddPatient_Click(object sender, EventArgs e)
 		{
-			AddPatientForm addPatientForm = new AddPatientForm(ref client);
-			addPatientForm.Show();
+			example1();
+			FromMilestone4PDF();
+			//AddPatientForm addPatientForm = new AddPatientForm(ref client);
+			//addPatientForm.Show();
 		}
 
-        private void Form2_ResizeEnd(object sender, EventArgs e)
+		private void Form2_ResizeEnd(object sender, EventArgs e)
         {
 
         }

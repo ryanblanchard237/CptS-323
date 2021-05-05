@@ -36,13 +36,17 @@ namespace Home_Visits_Vaccination
 		internal readonly GMapOverlay polygons = new GMapOverlay("polygons");
 		static List<Appointment> myappointments= new List<Appointment>();
 
+
 		PointLatLng currentVanLocation;
-		public static List<Appointment> appointmentList;
+		//public static List<Appointment> appointmentList;
+		public static List<GMapMarkerVan> vanMarkers  = new List<GMapMarkerVan>();
 		int indexOfCurrentAppointment;
 
 		public Form2()
 		{
 			InitializeComponent();
+			example1();
+			FromMilestone4PDF();
 		}
 
 		GDirections gDirections1;
@@ -236,29 +240,79 @@ namespace Home_Visits_Vaccination
 		{
 			return Math.PI * angle / 180.0;
 		}
+		public static async Task updatePosition(Appointment app, GMapMarkerVan curVan)
+		{
+		var dictionary = new Dictionary<string, string>
+							{
+							{ "key",app.Key },
+							{ "did","12"},
+							{ "companyId","Kovid Killers"},
+							{ "lat", curVan.Position.Lat.ToString() },
+							{ "lng",curVan.Position.Lng.ToString()}
+							};
+			HttpClient httpclient = new HttpClient();
+			var content = new FormUrlEncodedContent(dictionary);
+			var response = await httpclient.PostAsync("https://us-central1-cpts323battle.cloudfunctions.net/updatePosition", content);
+			var responseString = await response.Content.ReadAsStringAsync();
+			var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseString);
+			Console.WriteLine(data.message);
+			Console.WriteLine("Current index for the point " + data.index);
+		}
 
+		public async Task status0(Appointment myappointments)
+	{
+			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
+			var child2 = client.Child("/appointmentsStatus/" + myappointments.Key + "/status/0");
+			var status = new Status
+			{
+				code = 100
+			};
+			await child2.PutAsync(status);
+		}
 
-	
-	public void animate(int index)
+		public async Task status1(Appointment myappointments)
+		{
+			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
+			var child2 = client.Child("/appointmentsStatus/" + myappointments.Key + "/status/1");
+			var status = new Status
+			{
+				code = 110
+			};
+			await child2.PutAsync(status);
+		}
+		public async Task status2(Appointment myappointments)
+		{
+			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
+			var child2 = client.Child("/appointmentsStatus/" + myappointments.Key + "/status/2");
+			var status = new Status
+			{
+				code = 120
+			};
+			await child2.PutAsync(status);
+		}
+
+		public void animate(int index)
 
 		{
 			GMapProviders.GoogleMap.ApiKey = "AIzaSyBsS4_zQy-svXOtLrS32XPphEsSX-EMY8M";
 			PointLatLng start, end;
+			
 			start = new PointLatLng(46.289106, -119.292999);
 			if (myappointments.Count != 0)
-			//{
-			//	for (int j = 0; j < 4; j++)
-			//	{
-					{
+            {
+               // for (int j = 0; j < 4; j++)
+                //{
+                    
 						//start = new PointLatLng(myappointments[0].origin.lat, myappointments[0].origin.lon);
-						myappointments[j].destination.lon = -119.111432;
+						myappointments[0].destination.lon = -119.111432;
 						end = new PointLatLng(myappointments[0].destination.lat, myappointments[0].destination.lon);
-					}
-			else
-					{
+
+					//else
+					//{
 					//	start = new PointLatLng(46.289106, -119.292999); // Will pass the selected appointment lat/lng here
-						end = new PointLatLng(46.276860, -119.290511);
-					}
+					//		end = new PointLatLng(46.276860, -119.290511);
+					//}
+					
 					var temp = GMapProviders.GoogleMap.GetDirections(out routeDirection, start, end, false, false, false, false, false); // API call to get the directions
 					GMapRoute mapRoute2 = new GMapRoute(routeDirection.Route, "This Trip"); // Creates the route 
 					GMapOverlay overlayTest = new GMapOverlay("Test Route");
@@ -269,14 +323,15 @@ namespace Home_Visits_Vaccination
 					Bitmap icon = new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon4.png");
 					//var carMark = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(mapRoute2.Points[11], new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon2.png")); // Sets the car marker variable and assigns it the bitmap (Icon)
 					var carMark = new GMapMarkerVan(mapRoute2.Points[mapRoute2.Points.Count - 1], icon);
-					carMark.Position = mapRoute2.Points[0];
+					vanMarkers.Add(carMark);
+				//vanMarkers[j].Position = startP.Position;
+				carMark.Position = start;
 					objects.Markers.Add(startP); // Adds to markers list
 					objects.Markers.Add(endP);  // adds to markers list
-					objects.Markers.Add(carMark); // Add the car marker to overlay.
-
+					//objects.Markers.Add(vanMarkers[j]); // Add the car marker to overlay.
+					objects.Markers.Add(carMark);
 					gMapControl1.Overlays.Add(objects); // Adds the markers to actual overlay.
 					gMapControl1.ZoomAndCenterRoute(mapRoute2); // zooms to the route.
-					gMapControl1.Refresh();
 					Thread t = new Thread(() =>
 
 					{
@@ -289,43 +344,52 @@ namespace Home_Visits_Vaccination
 							var deltaX = Distance(mapRoute2.Points[i - 1], mapRoute2.Points[i]);
 							degree = (degree * 180 / Math.PI + 360) % 360;
 							carMark.Rotate((float)degree);
+							//vanMarkers[j].Rotate((float)degree);
 							var distance = 0.00972222222; //35mph to miles per second
 						var deltaSeconds = deltaX / distance;
 							deltaSeconds = deltaSeconds / 16;
-						//Console.WriteLine(routeDirection);
-						for (double s = 0; s < deltaSeconds; s = s + timedelay)
+							status0(myappointments[0]);
+							//Console.WriteLine(routeDirection);
+							for (double s = 0; s < deltaSeconds; s = s + timedelay)
 							{
 								var r = s / deltaSeconds;
 								var dlat = r * (mapRoute2.Points[i].Lat) + (1 - r) * (mapRoute2.Points[i - 1].Lat);
 								var dlng = r * (mapRoute2.Points[i].Lng) + (1 - r) * (mapRoute2.Points[i - 1].Lng);
 								var M_point = new PointLatLng(dlat, dlng);
 								Thread.Sleep((int)(deltaSeconds * timedelay * 1000));
+								//carMark.Position = M_point;
 								carMark.Position = M_point;
-							//Console.WriteLine("Point {0} coords are: {1}", i, M_point);
-						}
-							Console.WriteLine("Point {0} coords are: {1}", i, carMark.Position);
+								//Console.WriteLine("Point {0} coords are: {1}", i, M_point);
+								updatePosition(myappointments[0], carMark);
+							}
+							
 						}
 						Console.WriteLine("Start Sleep 56s");
+						
 						Console.WriteLine("{0}", Path.Combine(Application.StartupPath, @"..\..\..\..\Car_Icon4.png"));
+						status1(myappointments[0]);
 						Thread.Sleep((int)(56 * 10));
+						status2(myappointments[0]);
 						Console.WriteLine("DONE. end is {0}", end);
 
-					//firebase to upfate the status 1 (key),
+					
+                        //firebase to upfate the status 1 (key),
 
-					//Thread.Sleep((int)(56 * 1000));
+                        //Thread.Sleep((int)(56 * 1000));
 
-					//firebase to upfate the status 2 ,
+                        //firebase to upfate the status 2 ,
 
-					//call firebase finishAppointment
+                        //call firebase finishAppointment
 
-					//}
+                    //}
 					//=>
-				}
-					);
+
+					}
+				);
 					t.Start();
-				//}
-			//}
-		}
+            }
+        }
+    //}
 		private double Distance(PointLatLng p1, PointLatLng p2)
 
 		{

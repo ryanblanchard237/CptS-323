@@ -68,7 +68,7 @@ namespace Home_Visits_Vaccination
 
 			GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly; // Dont know what it does, but its recommended by the tutorial.
 			gMapControl1.Position = new PointLatLng(46.289106, -119.292999);
-			gMapControl1.MinZoom = 2;
+			gMapControl1.MinZoom = 0;
 			gMapControl1.MaxZoom = 14;
 			gMapControl1.Zoom = 14;
 
@@ -211,6 +211,7 @@ namespace Home_Visits_Vaccination
 			private readonly Bitmap icon = new Bitmap(Path.Combine(Application.StartupPath, @"C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon4.png"));
 			//private readonly Bitmap icon = new Bitmap(Path.Combine(Application.StartupPath, Path.Combine(Application.StartupPath, @"..\..\..\..\Car_Icon4.png")));
 			float heading = 0;
+			public bool inUse = false;
 			public GMapMarkerVan(PointLatLng p, Bitmap car) :base(p,car)
 			{
 				this.heading = 0;
@@ -291,28 +292,15 @@ namespace Home_Visits_Vaccination
 			await child2.PutAsync(status);
 		}
 
-		public void animate(int index)
+		public void  animate(int index, GMapMarkerVan vanMark)
 
 		{
 			GMapProviders.GoogleMap.ApiKey = "AIzaSyBsS4_zQy-svXOtLrS32XPphEsSX-EMY8M";
 			PointLatLng start, end;
 			
-			start = new PointLatLng(46.289106, -119.292999);
-			if (myappointments.Count != 0)
-            {
-               // for (int j = 0; j < 4; j++)
-                //{
-                    
-						//start = new PointLatLng(myappointments[0].origin.lat, myappointments[0].origin.lon);
-						myappointments[0].destination.lon = -119.111432;
-						end = new PointLatLng(myappointments[0].destination.lat, myappointments[0].destination.lon);
-
-					//else
-					//{
-					//	start = new PointLatLng(46.289106, -119.292999); // Will pass the selected appointment lat/lng here
-					//		end = new PointLatLng(46.276860, -119.290511);
-					//}
-					
+					start = new PointLatLng(46.289106, -119.292999);
+					myappointments[index].destination.lon = -119.111432;
+					end = new PointLatLng(myappointments[index].destination.lat, myappointments[index].destination.lon);		
 					var temp = GMapProviders.GoogleMap.GetDirections(out routeDirection, start, end, false, false, false, false, false); // API call to get the directions
 					GMapRoute mapRoute2 = new GMapRoute(routeDirection.Route, "This Trip"); // Creates the route 
 					GMapOverlay overlayTest = new GMapOverlay("Test Route");
@@ -322,33 +310,32 @@ namespace Home_Visits_Vaccination
 					GMap.NET.WindowsForms.Markers.GMarkerGoogle endP = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(end, GMarkerGoogleType.red_dot);
 					Bitmap icon = new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon4.png");
 					//var carMark = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(mapRoute2.Points[11], new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon2.png")); // Sets the car marker variable and assigns it the bitmap (Icon)
-					var carMark = new GMapMarkerVan(mapRoute2.Points[mapRoute2.Points.Count - 1], icon);
-					vanMarkers.Add(carMark);
-				//vanMarkers[j].Position = startP.Position;
-				carMark.Position = start;
+					//var carMark = new GMapMarkerVan(mapRoute2.Points[mapRoute2.Points.Count - 1], icon);
+					//vanMarkers.Add(carMark);
+					vanMarkers.Add(vanMark);
+					//vanMarkers[j].Position = startP.Position;
+					vanMark.Position = start;
 					objects.Markers.Add(startP); // Adds to markers list
 					objects.Markers.Add(endP);  // adds to markers list
 					//objects.Markers.Add(vanMarkers[j]); // Add the car marker to overlay.
-					objects.Markers.Add(carMark);
+					objects.Markers.Add(vanMark);
 					gMapControl1.Overlays.Add(objects); // Adds the markers to actual overlay.
 					gMapControl1.ZoomAndCenterRoute(mapRoute2); // zooms to the route.
 					Thread t = new Thread(() =>
 
 					{
-
-
 						var timedelay = 0.016;
 						for (int i = 1; i < mapRoute2.Points.Count; i++)
 						{
 							var degree = Bearing(mapRoute2.Points[i - 1], mapRoute2.Points[i]);
 							var deltaX = Distance(mapRoute2.Points[i - 1], mapRoute2.Points[i]);
 							degree = (degree * 180 / Math.PI + 360) % 360;
-							carMark.Rotate((float)degree);
+							vanMark.Rotate((float)degree);
 							//vanMarkers[j].Rotate((float)degree);
 							var distance = 0.00972222222; //35mph to miles per second
 						var deltaSeconds = deltaX / distance;
 							deltaSeconds = deltaSeconds / 16;
-							status0(myappointments[0]);
+							status0(myappointments[index]);
 							//Console.WriteLine(routeDirection);
 							for (double s = 0; s < deltaSeconds; s = s + timedelay)
 							{
@@ -357,20 +344,18 @@ namespace Home_Visits_Vaccination
 								var dlng = r * (mapRoute2.Points[i].Lng) + (1 - r) * (mapRoute2.Points[i - 1].Lng);
 								var M_point = new PointLatLng(dlat, dlng);
 								Thread.Sleep((int)(deltaSeconds * timedelay * 1000));
-								//carMark.Position = M_point;
-								carMark.Position = M_point;
-								//Console.WriteLine("Point {0} coords are: {1}", i, M_point);
-								updatePosition(myappointments[0], carMark);
+								vanMark.Position = M_point;
+								//updatePosition(myappointments[index], vanMark);
 							}
 							
 						}
-						Console.WriteLine("Start Sleep 56s");
+						//Console.WriteLine("Start Sleep 56s");
 						
-						Console.WriteLine("{0}", Path.Combine(Application.StartupPath, @"..\..\..\..\Car_Icon4.png"));
-						status1(myappointments[0]);
-						Thread.Sleep((int)(56 * 10));
-						status2(myappointments[0]);
-						Console.WriteLine("DONE. end is {0}", end);
+						//Console.WriteLine("{0}", Path.Combine(Application.StartupPath, @"..\..\..\..\Car_Icon4.png"));
+						status1(myappointments[index]);
+						Thread.Sleep((int)(56 * 10)); // change to 1000
+						status2(myappointments[index]);
+						//Console.WriteLine("DONE. end is {0}", end);
 
 					
                         //firebase to upfate the status 1 (key),
@@ -387,8 +372,8 @@ namespace Home_Visits_Vaccination
 					}
 				);
 					t.Start();
-            }
-        }
+			//}
+		}
     //}
 		private double Distance(PointLatLng p1, PointLatLng p2)
 
@@ -454,8 +439,29 @@ namespace Home_Visits_Vaccination
 		{
 			//example1();
 			PointLatLng start = new PointLatLng(46.289106, -119.292999); // Will pass the selected appointment lat/lng here
-			PointLatLng end = new PointLatLng(46.276860, -119.291511);
-			animate(1);
+			start = new PointLatLng(46.289106, -119.292999);
+			Bitmap icon = new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon4.png");
+			for (int i = 0; i < 5; i++)
+			{ 
+				vanMarkers.Add(new GMapMarkerVan(start, icon));
+			}
+			int k = 0;
+			for (int i=0; i<6; i++)
+			{
+				//for (int j=0; j<4; j++)
+				// {
+				//	if (vanMarkers[j].inUse == false)
+				//	{
+						//vanMarkers[j].inUse = true;
+						animate(i,vanMarkers[i]);
+						//vanMarkers[j].inUse = false;
+						//break;
+					//}
+				// }
+				//k++;
+				//if (k > myappointments.Count)
+				//	k = 20;
+			}
 			//example2(start,end);
 		}
 

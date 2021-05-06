@@ -18,6 +18,7 @@ namespace Home_Visits_Vaccination
 
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
+			//List<Appointment> appointmentList;
 			Application.Run(new Form2());
 
 			//Form2 f2 = new Form2();

@@ -38,11 +38,9 @@ namespace Home_Visits_Vaccination
 		static string compID;
 
 
-		PointLatLng currentVanLocation;
 		//public static List<Appointment> appointmentList;
 		public static List<GMapMarkerVan> vanMarkers  = new List<GMapMarkerVan>();
 		public static FirebaseClient gClient = new FirebaseClient("https://cpts323battle.firebaseio.com/");
-		int indexOfCurrentAppointment;
 
 		public Form2()
 		{
@@ -225,16 +223,13 @@ namespace Home_Visits_Vaccination
 			var responseString = await response.Content.ReadAsStringAsync();
 			var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseString);
 			Console.WriteLine(data.message);
-
 			 var stop = Console.ReadLine();
-			//subscriptionFree.Dispose();
 		}
 
 
 
 		public async Task status0(Appointment myappointments)
 	{
-			//var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
 			var child2 = gClient.Child("/appointmentsStatus/" + myappointments.Key + "/status/0");
 			var status = new Status
 			{
@@ -245,7 +240,6 @@ namespace Home_Visits_Vaccination
 
 		public async Task status1(Appointment myappointments)
 		{
-			//var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
 			var child2 = gClient.Child("/appointmentsStatus/" + myappointments.Key + "/status/1");
 			var status = new Status
 			{
@@ -255,7 +249,6 @@ namespace Home_Visits_Vaccination
 		}
 		public async Task status2(Appointment myappointments)
 		{
-			//var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
 			var child2 = gClient.Child("/appointmentsStatus/" + myappointments.Key + "/status/2");
 			var status = new Status
 			{
@@ -270,8 +263,7 @@ namespace Home_Visits_Vaccination
 			GMapProviders.GoogleMap.ApiKey = "AIzaSyBsS4_zQy-svXOtLrS32XPphEsSX-EMY8M";
 			PointLatLng start, end;
 			
-					start = new PointLatLng(46.289106, -119.292999);
-					//myappointments[index].destination.lon = -119.111432; //THIS WAS HARD CODED IN BECAUSE THE TEST PATIENTS DO NOT HAVE A VALID LON ATTRIBUTE SET
+					start = new PointLatLng(46.280452, -119.279381);
 					end = new PointLatLng(myappointments[index].destination.lat, myappointments[index].destination.lng);		
 					var temp = GMapProviders.GoogleMap.GetDirections(out routeDirection, start, end, false, false, false, false, false); // API call to get the directions
 					GMapRoute mapRoute2 = new GMapRoute(routeDirection.Route, "This Trip"); // Creates the route 
@@ -304,7 +296,6 @@ namespace Home_Visits_Vaccination
 							var deltaX = Distance(mapRoute2.Points[i - 1], mapRoute2.Points[i]);
 							degree = (degree * 180 / Math.PI + 360) % 360;
 							vanMark.Rotate((float)degree);
-							//vanMarkers[j].Rotate((float)degree);
 							var distance = 0.00972222222; //35mph to miles per second
 						var deltaSeconds = deltaX / distance;
 							deltaSeconds = deltaSeconds / 16;
@@ -324,7 +315,6 @@ namespace Home_Visits_Vaccination
 								}
 								acumsecond = acumsecond + timedelay;
 							}
-							
 						}
 						status1(myappointments[index]);
 						Thread.Sleep((int)(56 * 1000)); // change to 1000
@@ -344,9 +334,7 @@ namespace Home_Visits_Vaccination
 					}
 				);
 					t.Start();
-			//}
 		}
-    //}
 		private double Distance(PointLatLng p1, PointLatLng p2)
 
 		{
@@ -410,7 +398,6 @@ namespace Home_Visits_Vaccination
 
 		private void button13_Click(object sender, EventArgs e)
 		{
-			//example1();
 			PointLatLng start = new PointLatLng(46.289106, -119.292999); // Will pass the selected appointment lat/lng here
 			start = new PointLatLng(46.289106, -119.292999);
 			Bitmap icon = new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon4.png");
@@ -422,35 +409,11 @@ namespace Home_Visits_Vaccination
 			}
 			int vanFinished = 0;
 			int baseVal = -1;
-			//while (true)
-			//{
-				//if (vanFinished > baseVal)
-				//{
-
 			for (int i = 0; i < 5; i++)
 			{
-						//for (int j = 0; j < 4; j++)
-					//	{
-						//	if (vanMarkers[j].inUse == false)
-						//	{
-								// vanMarkers[j].inUse = true;
-								//Thread thread = new Thread(() => { animate(i, vanMarkers[j]); });
-								//thread.Start();
 								animate(i, vanMarkers[i]);
-								//vanMarkers[j].inUse = false;
-							//	break;
-						//	}
-					//	}
-					//}
-				//}
 			}
-			//example2(start,end);
 		}
-
-
-
-		// My stuff from solution "CSharpWithFirebase".
-
 		IFirebaseConfig firebaseConfig = new FirebaseConfig()
 		{
 			AuthSecret = "foo",
@@ -477,8 +440,6 @@ namespace Home_Visits_Vaccination
 		{
 			example1();
 			FromMilestone4PDF();
-			//AddPatientForm addPatientForm = new AddPatientForm(ref client);
-			//addPatientForm.Show();
 		}
 
 		private void Form2_ResizeEnd(object sender, EventArgs e)

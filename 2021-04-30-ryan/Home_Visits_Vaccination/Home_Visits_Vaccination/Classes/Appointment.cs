@@ -16,5 +16,20 @@ namespace Home_Visits_Vaccination
         public DateTime initialTime { get; set; }
         public bool accepted { get; set; }
         public double profit { get; set; }
+        public string Key { get; set; }
+    }
+    public class Response
+    {
+        public bool success;
+        public int index;
+        public string message;
+        public string companyId;
+        public float fareCost;
+    }
+
+    public class Status
+    {
+        public int code;
+        public int time;
     }
 }

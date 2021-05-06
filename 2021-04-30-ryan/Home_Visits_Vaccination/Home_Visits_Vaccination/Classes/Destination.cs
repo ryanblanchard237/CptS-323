@@ -9,7 +9,7 @@ namespace Home_Visits_Vaccination
     public class Destination
     {
         public double lat;
-        public double lon;
+        public double lng;
         public string destinationName;
         //public ServerTimeStamp TimestampPlaceholder { get; } = new ServerTimeStamp();
     }

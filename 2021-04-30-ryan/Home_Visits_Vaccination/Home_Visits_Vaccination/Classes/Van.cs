@@ -15,5 +15,6 @@ namespace Home_Visits_Vaccination
         public string VanId { get; set; }
         public double lat;
         public double lon;
+        public bool inuse = false;
     }
 }

@@ -35,6 +35,7 @@ namespace Home_Visits_Vaccination
 		internal readonly GMapOverlay routes = new GMapOverlay("routes");
 		internal readonly GMapOverlay polygons = new GMapOverlay("polygons");
 		static List<Appointment> myappointments= new List<Appointment>();
+		static string compID;
 
 
 		PointLatLng currentVanLocation;
@@ -195,7 +196,7 @@ namespace Home_Visits_Vaccination
 							{
 							{ "key",app.Key },
 							{ "did",curVan.did},
-							{ "companyId","Kovid Killers"},
+							{ "companyId",compID},
 							{ "lat", curVan.Position.Lat.ToString() },
 							{ "lng",curVan.Position.Lng.ToString()}
 							};
@@ -207,6 +208,29 @@ namespace Home_Visits_Vaccination
 			Console.WriteLine(data.message);
 			Console.WriteLine("Current index for the point " + data.index);
 		}
+
+		public static async Task finish(Appointment app, GMapMarkerVan curVan)
+		{
+			var dictionary = new Dictionary<string, string>
+			{
+			{ "key",app.Key },
+			{ "did",curVan.did},
+			{ "companyId",compID},
+			{ "lat",curVan.Position.Lat.ToString()},
+			{ "lng",curVan.Position.Lng.ToString()}
+			};
+			HttpClient httpclient = new HttpClient();
+			var content = new FormUrlEncodedContent(dictionary);
+			var response = await httpclient.PostAsync("https://us-central1-cpts323battle.cloudfunctions.net/finishAppointment", content);
+			var responseString = await response.Content.ReadAsStringAsync();
+			var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseString);
+			Console.WriteLine(data.message);
+
+			 var stop = Console.ReadLine();
+			//subscriptionFree.Dispose();
+		}
+
+
 
 		public async Task status0(Appointment myappointments)
 	{
@@ -248,7 +272,7 @@ namespace Home_Visits_Vaccination
 			
 					start = new PointLatLng(46.289106, -119.292999);
 					//myappointments[index].destination.lon = -119.111432; //THIS WAS HARD CODED IN BECAUSE THE TEST PATIENTS DO NOT HAVE A VALID LON ATTRIBUTE SET
-					end = new PointLatLng(myappointments[index].destination.lat, myappointments[index].destination.lon);		
+					end = new PointLatLng(myappointments[index].destination.lat, myappointments[index].destination.lng);		
 					var temp = GMapProviders.GoogleMap.GetDirections(out routeDirection, start, end, false, false, false, false, false); // API call to get the directions
 					GMapRoute mapRoute2 = new GMapRoute(routeDirection.Route, "This Trip"); // Creates the route 
 					GMapOverlay overlayTest = new GMapOverlay("Test Route");
@@ -273,6 +297,7 @@ namespace Home_Visits_Vaccination
 
 					{
 						var timedelay = 0.016;
+						var acumsecond = 0.0;
 						for (int i = 1; i < mapRoute2.Points.Count; i++)
 						{
 							var degree = Bearing(mapRoute2.Points[i - 1], mapRoute2.Points[i]);
@@ -292,13 +317,19 @@ namespace Home_Visits_Vaccination
 								var M_point = new PointLatLng(dlat, dlng);
 								Thread.Sleep((int)(deltaSeconds * timedelay * 1000));
 								vanMark.Position = M_point;
-								updatePosition(myappointments[index], vanMark);
+								if (acumsecond > 2)
+								{
+									updatePosition(myappointments[index], vanMark);
+									acumsecond = 0;
+								}
+								acumsecond = acumsecond + timedelay;
 							}
 							
 						}
 						status1(myappointments[index]);
 						Thread.Sleep((int)(56 * 1000)); // change to 1000
 						status2(myappointments[index]);
+						finish(myappointments[index], vanMark);
 						vanMark.inUse = false;
 						//firebase to upfate the status 1 (key),
 
@@ -374,6 +405,7 @@ namespace Home_Visits_Vaccination
 			Console.WriteLine(data.message);
 			Console.WriteLine(data.companyId);
 			companyId = data.companyId;
+			compID = data.companyId;
 		}
 
 		private void button13_Click(object sender, EventArgs e)

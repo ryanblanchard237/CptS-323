@@ -19,7 +19,8 @@ using FireSharp.Response;
 
 namespace Home_Visits_Vaccination
 {
-	public partial class AddPatientForm : Form
+	public partial class 
+		AddPatientForm : Form
 	{
 		IFirebaseClient client;
 
@@ -47,7 +48,7 @@ namespace Home_Visits_Vaccination
 			//p.pid = textBox5.Text.To;
 			p.pid = Int32.Parse(textBox5.Text);
 
-			p.image = textBox6.Text;
+			//p.image = textBox6.Text;
 			p.userCellphone = textBox7.Text;
 
 			//   ->   It needs to be a variable that is declared in the Form class.

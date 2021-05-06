@@ -1,5 +1,0 @@
-C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\ConsoleWithFirebaseDatabaseDotNet\ConsoleWithFirebaseDatabaseDotNet\bin\Debug\netcoreapp3.1\ConsoleWithFirebaseDatabaseDotNet.exe
-C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\ConsoleWithFirebaseDatabaseDotNet\ConsoleWithFirebaseDatabaseDotNet\obj\Debug\netcoreapp3.1\ConsoleWithFirebaseDatabaseDotNet.csprojAssemblyReference.cache
-C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\ConsoleWithFirebaseDatabaseDotNet\ConsoleWithFirebaseDatabaseDotNet\obj\Debug\netcoreapp3.1\ConsoleWithFirebaseDatabaseDotNet.AssemblyInfoInputs.cache
-C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\ConsoleWithFirebaseDatabaseDotNet\ConsoleWithFirebaseDatabaseDotNet\obj\Debug\netcoreapp3.1\ConsoleWithFirebaseDatabaseDotNet.AssemblyInfo.cs
-C:\Users\Ryan\Documents\WSU\Classes\20 - 21\WSU Spring 2021\cs323_software_design\ConsoleWithFirebaseDatabaseDotNet\ConsoleWithFirebaseDatabaseDotNet\obj\Debug\netcoreapp3.1\ConsoleWithFirebaseDatabaseDotNet.csproj.CoreCompileInputs.cache

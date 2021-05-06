@@ -114,7 +114,7 @@
             this.TabPage_VaccStats.Location = new System.Drawing.Point(4, 22);
             this.TabPage_VaccStats.Name = "TabPage_VaccStats";
             this.TabPage_VaccStats.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPage_VaccStats.Size = new System.Drawing.Size(427, 399);
+            this.TabPage_VaccStats.Size = new System.Drawing.Size(600, 529);
             this.TabPage_VaccStats.TabIndex = 1;
             this.TabPage_VaccStats.Text = "Vaccination Information";
             this.TabPage_VaccStats.UseVisualStyleBackColor = true;
@@ -275,7 +275,7 @@
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(100, 23);
             this.button13.TabIndex = 9;
-            this.button13.Text = "run_example1";
+            this.button13.Text = "Run Vans\r\n";
             this.button13.UseVisualStyleBackColor = true;
             this.button13.Click += new System.EventHandler(this.button13_Click);
             // 

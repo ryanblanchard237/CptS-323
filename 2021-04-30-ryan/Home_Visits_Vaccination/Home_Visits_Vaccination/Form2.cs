@@ -40,6 +40,7 @@ namespace Home_Visits_Vaccination
 		PointLatLng currentVanLocation;
 		//public static List<Appointment> appointmentList;
 		public static List<GMapMarkerVan> vanMarkers  = new List<GMapMarkerVan>();
+		public static FirebaseClient gClient = new FirebaseClient("https://cpts323battle.firebaseio.com/");
 		int indexOfCurrentAppointment;
 
 		public Form2()
@@ -69,28 +70,14 @@ namespace Home_Visits_Vaccination
 			GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly; // Dont know what it does, but its recommended by the tutorial.
 			gMapControl1.Position = new PointLatLng(46.289106, -119.292999);
 			gMapControl1.MinZoom = 0;
-			gMapControl1.MaxZoom = 14;
+			gMapControl1.MaxZoom = 18;
 			gMapControl1.Zoom = 14;
-
-			// to do...
-			//
-			// Right now, the map is set up for the default GMap interaction behavior...
-			// Using the mouse, you can right-click-and-drag (on the map) to move it around;
-			// you can use the scroll wheel to zoom in an out.
-			// This looks like the only means of interaction.
-			//
-			// Possibly we could change it so you can control it using the keyboard.
-			// (Maybe we want the normal mouse click (left click) to be the one that pans it.)
-			// (I feel like that's a bit more natural.)
-			// Also have to keep in mind we might be setting markers on it.
-			// Although now that I think about it,
 		}
 
 		public static async Task FromMilestone4PDF()
 		{
 			//******************** Initialization ***************************//
 			//var client = new FirebaseClient("https://cpts323-kovidkillers-default-rtdb.firebaseio.com/");
-			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
 			HttpClient httpclient = new HttpClient();
 			string selectedkey = "", responseString, companyId;
 			FormUrlEncodedContent content;
@@ -99,7 +86,7 @@ namespace Home_Visits_Vaccination
 
 
 			//******************** Get initial list of Prospect ***********************//
-			var Appointments = await client.Child("appointments").OnceAsync<Appointment>();
+			var Appointments = await gClient.Child("appointments").OnceAsync<Appointment>();
 
 			foreach (var appointment in Appointments)
 			{
@@ -128,12 +115,10 @@ namespace Home_Visits_Vaccination
 
 				}
 				selectedkey = appointment.Key;
-				//myappointments.Add(appointment.Object);
-
 			}
 
 			//******************** Get Prospect list one by one real time ***************************/
-			var child = client.Child("appointments");
+			var child = gClient.Child("appointments");
 			var observable = child.AsObservable<Appointment>();
 			//
 			// child.(as something that can be sovbservser)
@@ -152,46 +137,8 @@ namespace Home_Visits_Vaccination
 			{
 				selectedkey = appointment.Key;
 				Console.WriteLine($"New Appoinment:{appointment.Key}:->{appointment.Object.destination.destinationName}");
-				// update the list of appointsments.
-
-			  // appointmentList.Add(appointment.Object);
-
 			});
 		}
-
-		public   void example2(PointLatLng start, PointLatLng end) 
-		{
-
-			GMapProviders.GoogleMap.ApiKey = "AIzaSyBsS4_zQy-svXOtLrS32XPphEsSX-EMY8M";
-			//PointLatLng start = new PointLatLng(46.289106, -119.292999); // Will pass the selected appointment lat/lng here
-			//PointLatLng end = new PointLatLng(46.276860, -119.291511);
-			var temp = GMapProviders.GoogleMap.GetDirections(out routeDirection, start, end, false, false, false, false, false); // API call to get the directions
-			GMapRoute mapRoute2 = new GMapRoute(routeDirection.Route, "This Trip"); // Creates the route 
-			GMapOverlay overlayTest = new GMapOverlay("Test Route");
-			overlayTest.Routes.Add(mapRoute2);
-			gMapControl1.Overlays.Add(overlayTest);
-			GMap.NET.WindowsForms.Markers.GMarkerGoogle startP = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(start, GMarkerGoogleType.red_pushpin);// Adds the markers to start and end points.
-			GMap.NET.WindowsForms.Markers.GMarkerGoogle endP = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(end, GMarkerGoogleType.red_pushpin);
-			var carMark = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(mapRoute2.Points[11], new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon2.png")); // Sets the car marker variable and assigns it the bitmap (Icon)
-			objects.Markers.Add(startP); // Adds to markers list
-			objects.Markers.Add(endP);  // adds to markers list
-			objects.Markers.Add(carMark); // Add the car marker to overlay.
-
-			gMapControl1.Overlays.Add(objects); // Adds the markers to actual overlay.
-			gMapControl1.ZoomAndCenterRoute(mapRoute2); // zooms to the route.
-
-			Console.WriteLine(routeDirection);
-			for (int i = 0; i < mapRoute2.Points.Count; i++)
-			{
-				carMark.Position = mapRoute2.Points[i];
-				gMapControl1.Refresh();
-				Thread.Sleep(1000);
-				Console.WriteLine("Point {0} coords are: {1}", i, mapRoute2.Points[i]);
-			}
-	
-		}
-
-
 		public double Bearing(PointLatLng p1, PointLatLng p2)
 		{
 			//Convert input values to radians   
@@ -212,6 +159,7 @@ namespace Home_Visits_Vaccination
 			//private readonly Bitmap icon = new Bitmap(Path.Combine(Application.StartupPath, Path.Combine(Application.StartupPath, @"..\..\..\..\Car_Icon4.png")));
 			float heading = 0;
 			public bool inUse = false;
+			public string did;
 			public GMapMarkerVan(PointLatLng p, Bitmap car) :base(p,car)
 			{
 				this.heading = 0;
@@ -246,7 +194,7 @@ namespace Home_Visits_Vaccination
 		var dictionary = new Dictionary<string, string>
 							{
 							{ "key",app.Key },
-							{ "did","12"},
+							{ "did",curVan.did},
 							{ "companyId","Kovid Killers"},
 							{ "lat", curVan.Position.Lat.ToString() },
 							{ "lng",curVan.Position.Lng.ToString()}
@@ -262,8 +210,8 @@ namespace Home_Visits_Vaccination
 
 		public async Task status0(Appointment myappointments)
 	{
-			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
-			var child2 = client.Child("/appointmentsStatus/" + myappointments.Key + "/status/0");
+			//var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
+			var child2 = gClient.Child("/appointmentsStatus/" + myappointments.Key + "/status/0");
 			var status = new Status
 			{
 				code = 100
@@ -273,8 +221,8 @@ namespace Home_Visits_Vaccination
 
 		public async Task status1(Appointment myappointments)
 		{
-			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
-			var child2 = client.Child("/appointmentsStatus/" + myappointments.Key + "/status/1");
+			//var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
+			var child2 = gClient.Child("/appointmentsStatus/" + myappointments.Key + "/status/1");
 			var status = new Status
 			{
 				code = 110
@@ -283,8 +231,8 @@ namespace Home_Visits_Vaccination
 		}
 		public async Task status2(Appointment myappointments)
 		{
-			var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
-			var child2 = client.Child("/appointmentsStatus/" + myappointments.Key + "/status/2");
+			//var client = new FirebaseClient("https://cpts323battle.firebaseio.com/");
+			var child2 = gClient.Child("/appointmentsStatus/" + myappointments.Key + "/status/2");
 			var status = new Status
 			{
 				code = 120
@@ -299,7 +247,7 @@ namespace Home_Visits_Vaccination
 			PointLatLng start, end;
 			
 					start = new PointLatLng(46.289106, -119.292999);
-					myappointments[index].destination.lon = -119.111432;
+					//myappointments[index].destination.lon = -119.111432; //THIS WAS HARD CODED IN BECAUSE THE TEST PATIENTS DO NOT HAVE A VALID LON ATTRIBUTE SET
 					end = new PointLatLng(myappointments[index].destination.lat, myappointments[index].destination.lon);		
 					var temp = GMapProviders.GoogleMap.GetDirections(out routeDirection, start, end, false, false, false, false, false); // API call to get the directions
 					GMapRoute mapRoute2 = new GMapRoute(routeDirection.Route, "This Trip"); // Creates the route 
@@ -336,7 +284,6 @@ namespace Home_Visits_Vaccination
 						var deltaSeconds = deltaX / distance;
 							deltaSeconds = deltaSeconds / 16;
 							status0(myappointments[index]);
-							//Console.WriteLine(routeDirection);
 							for (double s = 0; s < deltaSeconds; s = s + timedelay)
 							{
 								var r = s / deltaSeconds;
@@ -345,29 +292,23 @@ namespace Home_Visits_Vaccination
 								var M_point = new PointLatLng(dlat, dlng);
 								Thread.Sleep((int)(deltaSeconds * timedelay * 1000));
 								vanMark.Position = M_point;
-								//updatePosition(myappointments[index], vanMark);
+								updatePosition(myappointments[index], vanMark);
 							}
 							
 						}
-						//Console.WriteLine("Start Sleep 56s");
-						
-						//Console.WriteLine("{0}", Path.Combine(Application.StartupPath, @"..\..\..\..\Car_Icon4.png"));
 						status1(myappointments[index]);
-						Thread.Sleep((int)(56 * 10)); // change to 1000
+						Thread.Sleep((int)(56 * 1000)); // change to 1000
 						status2(myappointments[index]);
-						//Console.WriteLine("DONE. end is {0}", end);
+						vanMark.inUse = false;
+						//firebase to upfate the status 1 (key),
 
-					
-                        //firebase to upfate the status 1 (key),
 
-                        //Thread.Sleep((int)(56 * 1000));
+						//firebase to upfate the status 2 ,
 
-                        //firebase to upfate the status 2 ,
+						//call firebase finishAppointment
 
-                        //call firebase finishAppointment
-
-                    //}
-					//=>
+						//}
+						//=>
 
 					}
 				);
@@ -443,24 +384,33 @@ namespace Home_Visits_Vaccination
 			Bitmap icon = new Bitmap("C:\\Users\\Jason\\Desktop\\323\\Milestone2\\CptS-323-main (1)\\CptS-323-main\\Home_Visits_Vaccination\\Home_Visits_Vaccination\\Car_Icon4.png");
 			for (int i = 0; i < 5; i++)
 			{ 
-				vanMarkers.Add(new GMapMarkerVan(start, icon));
+				GMapMarkerVan tempVan= new GMapMarkerVan(start, icon);
+				tempVan.did = i.ToString();
+				vanMarkers.Add(tempVan);
 			}
-			int k = 0;
-			for (int i=0; i<6; i++)
+			int vanFinished = 0;
+			int baseVal = -1;
+			//while (true)
+			//{
+				//if (vanFinished > baseVal)
+				//{
+
+			for (int i = 0; i < 5; i++)
 			{
-				//for (int j=0; j<4; j++)
-				// {
-				//	if (vanMarkers[j].inUse == false)
-				//	{
-						//vanMarkers[j].inUse = true;
-						animate(i,vanMarkers[i]);
-						//vanMarkers[j].inUse = false;
-						//break;
+						//for (int j = 0; j < 4; j++)
+					//	{
+						//	if (vanMarkers[j].inUse == false)
+						//	{
+								// vanMarkers[j].inUse = true;
+								//Thread thread = new Thread(() => { animate(i, vanMarkers[j]); });
+								//thread.Start();
+								animate(i, vanMarkers[i]);
+								//vanMarkers[j].inUse = false;
+							//	break;
+						//	}
+					//	}
 					//}
-				// }
-				//k++;
-				//if (k > myappointments.Count)
-				//	k = 20;
+				//}
 			}
 			//example2(start,end);
 		}
